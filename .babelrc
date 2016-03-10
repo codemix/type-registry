@@ -1,18 +1,15 @@
 {
   "presets": [
-    "es2015",
+    "es2015-node5",
     "stage-0",
     "react"
   ],
-  "plugins": [
-    ["contracts", {
-      "env": {
-        "production": {
-          "strip": true
-        }
-      }
-    }],
-    ["trace", {strip: true}]
-  ],
-  "passPerPreset": true
+  "plugins": [],
+  "passPerPreset": true,
+  "env": {
+    "legacy": {
+      "presets": ["es2015", "stage-0", "react"],
+      "plugins": ["transform-runtime"]
+    }
+  }
 }

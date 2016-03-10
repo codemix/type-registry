@@ -1,20 +1,24 @@
 {
   "name": "type-registry",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Provides a container which can hold different kinds of Type.",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "babel-runtime": "^6.5.0"
+  },
   "devDependencies": {
     "babel-cli": "^6.5.1",
     "babel-core": "^6.5.1",
     "babel-plugin-contracts": "^1.1.1",
     "babel-plugin-trace": "^1.0.0",
+    "babel-plugin-transform-runtime": "^6.5.2",
     "babel-plugin-typecheck": "^3.6.1",
     "babel-polyfill": "^6.5.0",
     "babel-preset-es2015": "^6.5.0",
+    "babel-preset-es2015-node5": "^1.1.2",
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.5.0",
     "flow-bin": "^0.21.0",
@@ -23,12 +27,13 @@
     "should": "^7.1.1"
   },
   "scripts": {
-    "prepublish": "NODE_ENV=production npm run build",
-    "test": "flow && mocha --max-old-space-size=8192 --expose-gc",
+    "prepublish": "NODE_ENV=production npm run build && npm run build-legacy",
+    "test": "flow check && mocha --max-old-space-size=8192 --expose-gc",
     "watch": "mocha --watch --max-old-space-size=8192 --expose-gc",
     "build": "babel -d ./lib ./src",
+    "build-legacy": "NODE_ENV=legacy babel -d ./lib-legacy ./src",
     "coverage": "NODE_ENV=coverage babel-node node_modules/isparta/bin/isparta cover --report text --report html node_modules/mocha/bin/_mocha -- --reporter dot --bail",
-    "flow": "flow"
+    "flow": "flow check"
   },
   "repository": {
     "type": "git",
