@@ -1,6 +1,6 @@
 {
   "name": "type-registry",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Provides a container which can hold different kinds of Type.",
   "main": "index.js",
   "directories": {
