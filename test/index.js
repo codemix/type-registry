@@ -1,6 +1,11 @@
-import TypeRegistry from "../src";
+import {TypeRegistry} from "../src";
 
 describe('TypeRegistry', function () {
+
+  const Simple = {
+    id: 11,
+    name: 'Simple'
+  };
 
   const User = {
     id: 22,
@@ -240,7 +245,140 @@ describe('TypeRegistry', function () {
       };
       registry.isValidType(Test).should.equal(false);
     });
+  });
 
+  describe('IDRange', function () {
+    const registry = new TypeRegistry();
 
+    describe('@@iterator()', function () {
+      it('should generate some ids for a new key PrimitiveType', function () {
+        let count = 0;
+        let first, last;
+        for (const id of registry.range("PrimitiveType")) {
+          if (count === 0) {
+            first = id;
+          }
+          last = id;
+          count++;
+          if (count === 10) {
+            break;
+          }
+        }
+        count.should.equal(10);
+        first.should.equal(1); // Never generate zero.
+        last.should.equal(10);
+      });
+
+      it('should generate all the ids for the ArrayType key', function () {
+        let count = 0;
+        let first, last;
+        for (const id of registry.range("ArrayType")) {
+          if (count === 0) {
+            first = id;
+          }
+          last = id;
+          count++;
+        }
+        count.should.equal(Math.pow(2, 20));
+        first.should.equal(Math.pow(2, 20));
+        last.should.equal(first + count - 1);
+      });
+
+      it('should registry an id within the PrimitiveType range ', function () {
+        registry.add(Simple);
+      });
+
+      it('should generate the remaining ids in PrimitiveType', function () {
+        let count = 0;
+        let first, last;
+        for (const id of registry.range("PrimitiveType")) {
+          if (count === 0) {
+            first = id;
+          }
+          last = id;
+          count++;
+        }
+        first.should.equal(12);
+        count.should.equal((Math.pow(2, 20) - first));
+        last.should.equal(Math.pow(2, 20) - 1);
+      });
+    });
+
+    describe('.range()', function () {
+      it('should get the range for the given existing key', function () {
+        const range = registry.range("PrimitiveType");
+        range.min.should.equal(1);
+        range.max.should.equal(Math.pow(2, 20) - 1);
+      });
+
+      it('should get the range for another existing key', function () {
+        const range = registry.range("ArrayType");
+        range.min.should.equal(Math.pow(2, 20));
+        range.max.should.equal((Math.pow(2, 20) * 2) - 1);
+      });
+
+      it('should create the range for a missing key', function () {
+        const range = registry.range("HashMapType");
+        range.min.should.equal(Math.pow(2, 20) * 2);
+        range.max.should.equal((Math.pow(2, 20) * 3) - 1);
+      });
+
+      it('should create the range for another missing key', function () {
+        const range = registry.range("LinkedListType");
+        range.min.should.equal(Math.pow(2, 20) * 3);
+        range.max.should.equal((Math.pow(2, 20) * 4) - 1);
+      });
+    });
+
+    describe('next()', function () {
+      let range;
+      let Demo;
+      it('should acquire the range.', function () {
+        range = registry.range("LinkedListType")
+      });
+
+      it('should generate the next value', function () {
+        const value = range.next();
+        value.should.be.within(range.min, range.max);
+      });
+
+      it('should register a new type within the range', function () {
+        Demo = {
+          id: range.value,
+          name: 'Demo'
+        };
+        registry.add(Demo);
+      });
+
+      it('should skip over the next id', function () {
+        const value = range.next();
+        value.should.equal(Demo.id + 1);
+      });
+
+      it('should exhaust the available ids and throw', function () {
+        (() => {
+          let id;
+          while (id = range.next()) {
+            id.should.be.within(range.min, range.max);
+          }
+        }).should.throw(RangeError);
+      });
+    });
+
+    describe('.rangeKeyForId()', function () {
+      it('should get the range for the given id', function () {
+        const key = registry.rangeKeyForId(10);
+        key.should.equal("PrimitiveType");
+      });
+
+      it('should get the range for another id', function () {
+        const key = registry.rangeKeyForId(Math.pow(2, 20));
+        key.should.equal("ArrayType");
+      });
+
+      it('should return nothing for an id without an associated range', function () {
+        (registry.rangeKeyForId(Math.pow(2, 20) * 600) === undefined).should.equal(true);
+      });
+    });
   });
 });

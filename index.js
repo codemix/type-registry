@@ -1,8 +1,8 @@
 "use strict";
 
 try {
-  module.exports = require('./lib').default;
+  module.exports = require('./lib').TypeRegistry;
 }
 catch (e) {
-  module.exports = require('./lib-legacy').default;
+  module.exports = require('./lib-legacy').TypeRegistry;
 }
